@@ -2,7 +2,7 @@ export type Field = {
   id: string;
   defID: string;
   name: string;
-  type: "TEXT" | "INTEGER";
+  type: string;
   defaultValue?: string;
   additionalOptions?: string;
 };
