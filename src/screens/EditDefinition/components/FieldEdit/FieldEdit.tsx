@@ -85,6 +85,7 @@ const FieldEdit = ({
       <ConfirmationModal
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}
+        message='Are you sure you want to remove this field.'
         buttons={[
           {
             title: "Cancel",
