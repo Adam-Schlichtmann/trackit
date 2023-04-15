@@ -10,27 +10,23 @@ import {
   FIELDS_SELECT_BY_ID,
 } from "./select.scripts";
 
-import * as FileSystem from "expo-file-system";
-
 class Database {
   static db: SQLite.WebSQLDatabase;
 
   static init = () => {
-    console.log(FileSystem.documentDirectory);
     Database.db = SQLite.openDatabase(
       "trackit.db",
       undefined,
       undefined,
       undefined,
       () => {
-        console.log(TABLES);
-        Database.reset()
-          .then(() => {
-            Database.createTables()
-              .then(() => {})
-              .catch(console.log);
-          })
+        // Database.reset()
+        //   .then(() => {
+        Database.createTables()
+          .then(() => {})
           .catch(console.log);
+        // })
+        // .catch(console.log);
       }
     );
   };
@@ -95,7 +91,14 @@ class Database {
       Database.db.transaction((tx) =>
         tx.executeSql(
           FIELD_INSERT(field),
-          [],
+          [
+            field.id,
+            field.defID,
+            field.name,
+            field.type,
+            field.defaultValue ?? "",
+            field.additionalOptions ?? "",
+          ],
           () => resolve(),
           (_, err) => {
             reject(err);
@@ -110,7 +113,7 @@ class Database {
       Database.db.transaction((tx) =>
         tx.executeSql(
           DEFINITIONS_INSERT(definition),
-          [],
+          [definition.name, definition.id],
           () => resolve(),
           (_, err) => {
             reject(err);
