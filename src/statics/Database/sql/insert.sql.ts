@@ -1,4 +1,4 @@
-import { Definition, Field } from "./Database.types";
+import { Definition, Field } from "../Database.types";
 
 export const DEFINITIONS_INSERT = (definition: Definition) =>
   `INSERT INTO definitions (name, id) VALUES (?, ?) `;

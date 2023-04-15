@@ -1,14 +1,21 @@
 import * as SQLite from "expo-sqlite";
-import { TABLES, TABLES_CREATE_SCRIPTS } from "./tables.scripts";
+
 import { Definition, Field } from "./Database.types";
-import { DEFINITIONS_INSERT, FIELD_INSERT } from "./insert.scripts";
-import { DEFINITIONS_UPDATE, FIELD_UPDATE } from "./update.scripts";
 import {
+  DEFINITIONS_UPDATE,
+  FIELD_UPDATE,
+  DEFINITIONS_INSERT,
+  FIELD_INSERT,
+  TABLES,
+  TABLES_CREATE_SCRIPTS,
   DEFINITIONS_SELECT_ALL,
   DEFINITIONS_SELECT_BY_ID,
   FIELDS_SELECT_ALL,
+  FIELDS_SELECT_BY_DEF_ID,
   FIELDS_SELECT_BY_ID,
-} from "./select.scripts";
+  DEFINITIONS_DELETE_BY_ID,
+  FIELD_DELETE_BY_DEF_ID,
+} from "./sql";
 
 class Database {
   static db: SQLite.WebSQLDatabase;
@@ -85,6 +92,33 @@ class Database {
         }
       );
     });
+
+  static deleteFullDefinition = (id: string): Promise<void> =>
+    new Promise<void>((resolve, reject) =>
+      Database.db.transaction((tx) =>
+        tx.executeSql(
+          DEFINITIONS_DELETE_BY_ID(),
+          [id],
+          (innerTx) => {
+            innerTx.executeSql(
+              FIELD_DELETE_BY_DEF_ID(),
+              [id],
+              () => {
+                resolve();
+              },
+              (_, err) => {
+                reject(err);
+                return false;
+              }
+            );
+          },
+          (_, err) => {
+            reject(err);
+            return false;
+          }
+        )
+      )
+    );
 
   static insertField = (field: Field) =>
     new Promise<void>((resolve, reject) =>
@@ -167,6 +201,41 @@ class Database {
             }
 
             resolve(definitions);
+          },
+          (_, err) => {
+            reject(err);
+            return false;
+          }
+        )
+      )
+    );
+
+  static getFullDefinition = (id: string): Promise<Definition> =>
+    new Promise<Definition>((resolve, reject) =>
+      Database.db.transaction((tx) =>
+        tx.executeSql(
+          DEFINITIONS_SELECT_BY_ID(id),
+          [],
+          (innerTx, { rows }) => {
+            if (rows.length === 1) {
+              innerTx.executeSql(
+                FIELDS_SELECT_BY_DEF_ID(id),
+                [],
+                (_, { rows: fieldRows }) => {
+                  const fields: Field[] = [];
+
+                  for (let i = 0; i < fieldRows.length; i++) {
+                    fields.push(fieldRows.item(i) as Field);
+                  }
+
+                  resolve({ ...(rows.item(0) as Definition), fields });
+                },
+                (_, err) => {
+                  reject(err);
+                  return false;
+                }
+              );
+            }
           },
           (_, err) => {
             reject(err);
