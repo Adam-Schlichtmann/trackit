@@ -8,8 +8,6 @@ import {
   IconButton,
   HStack,
   Input,
-  AlertDialog,
-  Button,
 } from "native-base";
 import { ConfirmationModal } from "../../../../components";
 

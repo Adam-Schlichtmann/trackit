@@ -15,6 +15,7 @@ import {
   FIELDS_SELECT_BY_ID,
   DEFINITIONS_DELETE_BY_ID,
   FIELD_DELETE_BY_DEF_ID,
+  FIELD_DELETE_BY_ID,
 } from "./sql";
 
 class Database {
@@ -112,6 +113,21 @@ class Database {
               }
             );
           },
+          (_, err) => {
+            reject(err);
+            return false;
+          }
+        )
+      )
+    );
+
+  static deleteField = (id: string) =>
+    new Promise<void>((resolve, reject) =>
+      Database.db.transaction((tx) =>
+        tx.executeSql(
+          FIELD_DELETE_BY_ID(),
+          [id],
+          () => resolve(),
           (_, err) => {
             reject(err);
             return false;

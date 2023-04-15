@@ -65,6 +65,7 @@ const EditDefinition = () => {
   const onRemoveField = (fieldID: string) => () =>
     setDefinition((prev) => {
       const index = prev.fields.findIndex((f) => f.id === fieldID);
+      Database.deleteField(prev.fields[index].id).catch(console.log);
       return {
         ...prev,
         fields: [
