@@ -1,13 +1,21 @@
 import { Heading, HStack, ChevronRightIcon } from "native-base";
 import { Definition } from "../../../../statics";
 import { TouchableOpacity } from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import { StackNavigationProp } from "@react-navigation/stack";
+import { AllStackParams } from "../../../../AppNavigation.types";
+import { EDIT_DEFINITION } from "../../../../AppNavigationConstants";
 
 type Props = {
   definition: Definition;
 };
 
 const DefinitionCard = ({ definition }: Props) => {
-  const viewDefinition = () => {};
+  const navigation = useNavigation<StackNavigationProp<AllStackParams>>();
+
+  const viewDefinition = () => {
+    navigation.navigate(EDIT_DEFINITION, { id: definition.id });
+  };
 
   return (
     <TouchableOpacity onPress={viewDefinition}>

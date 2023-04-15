@@ -7,6 +7,7 @@ import {
   Box,
   useToast,
   KeyboardAvoidingView,
+  HStack,
 } from "native-base";
 import { AllStackParams } from "../../AppNavigation.types";
 import { EDIT_DEFINITION } from "../../AppNavigationConstants";
@@ -15,6 +16,7 @@ import { Database, Definition, Field } from "../../statics";
 import { randomUUID } from "expo-crypto";
 import { FieldEdit } from "./components";
 import { Platform } from "react-native";
+import { ConfirmationModal } from "../../components";
 
 const EditDefinition = () => {
   const navigation = useNavigation();
@@ -22,6 +24,7 @@ const EditDefinition = () => {
     params: { id },
   } = useRoute<RouteProp<AllStackParams, typeof EDIT_DEFINITION>>();
 
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [definition, setDefinition] = useState<Definition>({
     name: "",
     id: randomUUID(),
@@ -87,15 +90,34 @@ const EditDefinition = () => {
       };
     });
 
+  const deleteDefinition = () => {
+    if (id) {
+      Database.deleteFullDefinition(id).then(() => {
+        navigation.goBack();
+      });
+    }
+  };
+
   const save = () => {
-    Database.insertDefinition(definition)
-      .then(() => {
-        const proms = definition.fields.map((f) => Database.insertField(f));
-        Promise.all(proms)
-          .then(() => navigation.goBack())
-          .catch(console.log);
-      })
-      .catch(console.log);
+    if (id) {
+      Database.updateDefinition(definition)
+        .then(() => {
+          const proms = definition.fields.map((f) => Database.updateField(f));
+          Promise.all(proms)
+            .then(() => navigation.goBack())
+            .catch(console.log);
+        })
+        .catch(console.log);
+    } else {
+      Database.insertDefinition(definition)
+        .then(() => {
+          const proms = definition.fields.map((f) => Database.insertField(f));
+          Promise.all(proms)
+            .then(() => navigation.goBack())
+            .catch(console.log);
+        })
+        .catch(console.log);
+    }
   };
 
   const validateDefinition = () => {
@@ -118,10 +140,8 @@ const EditDefinition = () => {
 
   useEffect(() => {
     if (id) {
-      Database.selectDefinitions(id).then((def) => {
-        if (def.length === 1) {
-          setDefinition(def[0]);
-        }
+      Database.getFullDefinition(id).then((def) => {
+        setDefinition(def);
       });
     }
   }, []);
@@ -154,10 +174,44 @@ const EditDefinition = () => {
         <Button marginBottom={2} onPress={addField}>
           Add Field
         </Button>
-        <Button colorScheme={"success"} onPress={validateDefinition}>
-          SAVE
-        </Button>
+        <HStack>
+          <Button
+            flex={1}
+            mr={id ? 2 : 0}
+            colorScheme={"success"}
+            onPress={validateDefinition}
+          >
+            SAVE
+          </Button>
+          {id && (
+            <Button
+              flex={1}
+              ml={2}
+              colorScheme={"danger"}
+              onPress={() => setIsDeleteOpen(true)}
+            >
+              DELETE
+            </Button>
+          )}
+        </HStack>
       </Box>
+      <ConfirmationModal
+        isOpen={isDeleteOpen}
+        onClose={() => setIsDeleteOpen(false)}
+        message='Are you sure you want to delete this definition. This action is NOT reversible.'
+        buttons={[
+          {
+            title: "Cancel",
+            onPress: () => setIsDeleteOpen(false),
+            variant: "unstyled",
+          },
+          {
+            title: "Delete",
+            onPress: deleteDefinition,
+            colorScheme: "danger",
+          },
+        ]}
+      />
     </KeyboardAvoidingView>
   );
 };
