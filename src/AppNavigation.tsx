@@ -4,6 +4,7 @@ import {
   CREATE,
   EDIT_DEFINITION,
   EDIT,
+  DEFINITIONS_STACK,
 } from "./AppNavigationConstants";
 import { Definitions, Create, EditDefinition, Edit } from "./screens";
 import { NavigationContainer } from "@react-navigation/native";
@@ -29,10 +30,10 @@ const MainTab = () => {
   return (
     <NavigationContainer>
       <Tab.Navigator
-        initialRouteName={DEFINITIONS}
+        initialRouteName={DEFINITIONS_STACK}
         screenOptions={{ headerShown: false }}
       >
-        <Tab.Screen name={DEFINITIONS} component={DefinitionStack} />
+        <Tab.Screen name={DEFINITIONS_STACK} component={DefinitionStack} />
         <Tab.Screen name={CREATE} component={Create} />
         <Tab.Screen name={EDIT} component={Edit} />
       </Tab.Navigator>
