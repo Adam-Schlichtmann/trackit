@@ -5,23 +5,22 @@ import {
   FlatList,
   Input,
   Box,
-  Toast,
   useToast,
   KeyboardAvoidingView,
 } from "native-base";
 import { AllStackParams } from "../../AppNavigation.types";
-import { DEFINITION_EDIT } from "../../AppNavigationConstants";
+import { EDIT_DEFINITION } from "../../AppNavigationConstants";
 import { useEffect, useState } from "react";
 import { Database, Definition, Field } from "../../statics";
 import { randomUUID } from "expo-crypto";
 import { FieldEdit } from "./components";
 import { Platform } from "react-native";
 
-const DefinitionEdit = () => {
+const EditDefinition = () => {
   const navigation = useNavigation();
   const {
     params: { id },
-  } = useRoute<RouteProp<AllStackParams, typeof DEFINITION_EDIT>>();
+  } = useRoute<RouteProp<AllStackParams, typeof EDIT_DEFINITION>>();
 
   const [definition, setDefinition] = useState<Definition>({
     name: "",
@@ -99,7 +98,7 @@ const DefinitionEdit = () => {
       .catch(console.log);
   };
 
-  const validateConfiguration = () => {
+  const validateDefinition = () => {
     if (!definition.name) {
       toast.show({
         description: "Name is required",
@@ -107,7 +106,7 @@ const DefinitionEdit = () => {
         avoidKeyboard: true,
       });
     } else if (!definition.fields.length) {
-      toast.show({ description: "Configurations require fields" });
+      toast.show({ description: "Definitions require fields" });
     } else if (definition.fields.some((f) => !f.name)) {
       toast.show({ description: "All Fields require a name" });
     } else if (definition.fields.some((f) => !f.type)) {
@@ -155,7 +154,7 @@ const DefinitionEdit = () => {
         <Button marginBottom={2} onPress={addField}>
           Add Field
         </Button>
-        <Button colorScheme={"success"} onPress={validateConfiguration}>
+        <Button colorScheme={"success"} onPress={validateDefinition}>
           SAVE
         </Button>
       </Box>
@@ -163,4 +162,4 @@ const DefinitionEdit = () => {
   );
 };
 
-export default DefinitionEdit;
+export default EditDefinition;

@@ -1,28 +1,25 @@
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import {
-  CONFIGURATION,
+  DEFINITIONS,
   CREATE,
-  DEFINITION_EDIT,
+  EDIT_DEFINITION,
   EDIT,
 } from "./AppNavigationConstants";
-import { Configuration, Create, DefinitionEdit, Edit } from "./screens";
+import { Definitions, Create, EditDefinition, Edit } from "./screens";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 
-const ConfigurationStackNav = createStackNavigator();
+const DefinitionStackNav = createStackNavigator();
 
-const ConfigurationStack = () => {
+const DefinitionStack = () => {
   return (
-    <ConfigurationStackNav.Navigator>
-      <ConfigurationStackNav.Screen
-        name={CONFIGURATION}
-        component={Configuration}
+    <DefinitionStackNav.Navigator>
+      <DefinitionStackNav.Screen name={DEFINITIONS} component={Definitions} />
+      <DefinitionStackNav.Screen
+        name={EDIT_DEFINITION}
+        component={EditDefinition}
       />
-      <ConfigurationStackNav.Screen
-        name={DEFINITION_EDIT}
-        component={DefinitionEdit}
-      />
-    </ConfigurationStackNav.Navigator>
+    </DefinitionStackNav.Navigator>
   );
 };
 
@@ -32,10 +29,10 @@ const MainTab = () => {
   return (
     <NavigationContainer>
       <Tab.Navigator
-        initialRouteName={CONFIGURATION}
+        initialRouteName={DEFINITIONS}
         screenOptions={{ headerShown: false }}
       >
-        <Tab.Screen name={CONFIGURATION} component={ConfigurationStack} />
+        <Tab.Screen name={DEFINITIONS} component={DefinitionStack} />
         <Tab.Screen name={CREATE} component={Create} />
         <Tab.Screen name={EDIT} component={Edit} />
       </Tab.Navigator>

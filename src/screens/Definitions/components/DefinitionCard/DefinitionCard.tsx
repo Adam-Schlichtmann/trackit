@@ -6,7 +6,7 @@ type Props = {
   definition: Definition;
 };
 
-const ConfigurationCard = ({ definition }: Props) => {
+const DefinitionCard = ({ definition }: Props) => {
   const viewDefinition = () => {};
 
   return (
@@ -32,4 +32,4 @@ const ConfigurationCard = ({ definition }: Props) => {
   );
 };
 
-export default ConfigurationCard;
+export default DefinitionCard;

@@ -1,6 +1,6 @@
-import { Center, HStack, Skeleton, ChevronRightIcon } from "native-base";
+import { HStack, Skeleton, ChevronRightIcon } from "native-base";
 
-const ConfigurationCardSkeleton = () => {
+const DefinitionCardSkeleton = () => {
   return (
     <HStack
       flex={1}
@@ -22,4 +22,4 @@ const ConfigurationCardSkeleton = () => {
   );
 };
 
-export default ConfigurationCardSkeleton;
+export default DefinitionCardSkeleton;
