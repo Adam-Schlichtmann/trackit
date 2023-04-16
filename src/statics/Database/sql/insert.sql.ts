@@ -1,7 +1,5 @@
-import { Definition, Field } from "../Database.types";
+export const DEFINITIONS_INSERT = () =>
+  `INSERT INTO definitions (name, titleFields, id) VALUES (?, ?, ?) `;
 
-export const DEFINITIONS_INSERT = (definition: Definition) =>
-  `INSERT INTO definitions (name, id) VALUES (?, ?) `;
-
-export const FIELD_INSERT = (field: Field) =>
-  `INSERT INTO fields (id, defID, name, type, defaultValue, additionalOptions) VALUES (?, ?, ?, ?, ?, ?)`;
+export const FIELD_INSERT = () =>
+  `INSERT INTO fields (id, defID, name, type, defaultValue, isRequired, isUnique, sequence, label) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;

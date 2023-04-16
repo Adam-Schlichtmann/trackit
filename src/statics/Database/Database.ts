@@ -140,14 +140,17 @@ class Database {
     new Promise<void>((resolve, reject) =>
       Database.db.transaction((tx) =>
         tx.executeSql(
-          FIELD_INSERT(field),
+          FIELD_INSERT(),
           [
             field.id,
             field.defID,
             field.name,
             field.type,
             field.defaultValue ?? "",
-            field.additionalOptions ?? "",
+            field.isRequired ? 1 : 0,
+            field.isUnique ? 1 : 0,
+            field.sequence,
+            field.label,
           ],
           () => resolve(),
           (_, err) => {
@@ -158,13 +161,41 @@ class Database {
       )
     );
 
-  static insertDefinition = (definition: Definition) =>
+  static insertFullDefinition = (definition: Definition) =>
     new Promise<void>((resolve, reject) =>
       Database.db.transaction((tx) =>
         tx.executeSql(
-          DEFINITIONS_INSERT(definition),
-          [definition.name, definition.id],
-          () => resolve(),
+          DEFINITIONS_INSERT(),
+          [definition.name, definition.titleFields.join(","), definition.id],
+          (innerTx) => {
+            const proms = definition.fields.map(
+              (field) =>
+                new Promise<void>((innerResolve, innerReject) =>
+                  innerTx.executeSql(
+                    FIELD_INSERT(),
+                    [
+                      field.id,
+                      field.defID,
+                      field.name,
+                      field.type,
+                      field.defaultValue ?? "",
+                      field.isRequired ? 1 : 0,
+                      field.isUnique ? 1 : 0,
+                      field.sequence,
+                      field.label,
+                    ],
+                    () => innerResolve(),
+                    (_, err) => {
+                      innerReject(err);
+                      return false;
+                    }
+                  )
+                )
+            );
+            Promise.all(proms)
+              .then(() => resolve())
+              .catch(reject);
+          },
           (_, err) => {
             reject(err);
             return false;
@@ -173,13 +204,31 @@ class Database {
       )
     );
 
-  static updateDefinition = (definition: Definition) =>
+  static updateFullDefinition = (definition: Definition) =>
     new Promise<void>((resolve, reject) =>
       Database.db.transaction((tx) =>
         tx.executeSql(
           DEFINITIONS_UPDATE(definition),
           [],
-          () => resolve(),
+          (innerTx) => {
+            const proms = definition.fields.map(
+              (field) =>
+                new Promise<void>((innerResolve, innerReject) =>
+                  innerTx.executeSql(
+                    FIELD_UPDATE(field),
+                    [],
+                    () => innerResolve(),
+                    (_, err) => {
+                      innerReject(err);
+                      return false;
+                    }
+                  )
+                )
+            );
+            Promise.all(proms)
+              .then(() => resolve())
+              .catch(reject);
+          },
           (_, err) => {
             reject(err);
             return false;
@@ -244,7 +293,11 @@ class Database {
                     fields.push(fieldRows.item(i) as Field);
                   }
 
-                  resolve({ ...(rows.item(0) as Definition), fields });
+                  resolve({
+                    ...(rows.item(0) as Definition),
+                    titleFields: rows.item(0).titleFields.split(","),
+                    fields,
+                  });
                 },
                 (_, err) => {
                   reject(err);

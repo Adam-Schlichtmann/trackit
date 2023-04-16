@@ -1,6 +1,6 @@
 import { useCallback, useState } from "react";
 import { RefreshControl } from "react-native";
-import { Box, FlatList } from "native-base";
+import { Box, FlatList, useToast } from "native-base";
 import { Database, Definition } from "../../statics";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { Button } from "native-base";
@@ -8,6 +8,7 @@ import { EDIT_DEFINITION } from "../../AppNavigationConstants";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { AllStackParams } from "../../AppNavigation.types";
 import { DefinitionCard, DefinitionCardSkeleton } from "./components";
+import { Toast } from "../../components";
 
 const SKELETON_DATA = [
   "A",
@@ -28,6 +29,7 @@ const SKELETON_DATA = [
 ];
 
 const Definitions = () => {
+  const toast = useToast();
   const navigation = useNavigation<StackNavigationProp<AllStackParams>>();
   const [definitions, setDefinitions] = useState<Definition[]>([]);
   const [loading, setLoading] = useState(false);
@@ -35,10 +37,23 @@ const Definitions = () => {
   const refresh = useCallback(() => {
     setLoading(true);
     setTimeout(() => {
-      Database.selectDefinitions().then((d) => {
-        setDefinitions(d);
-        setLoading(false);
-      });
+      Database.selectDefinitions()
+        .then((d) => {
+          setDefinitions(d);
+          setLoading(false);
+        })
+        .catch(() =>
+          toast.show({
+            render: () => (
+              <Toast
+                title='Error'
+                description='Unable to load definitions.'
+                variant='left-accent'
+                status='error'
+              />
+            ),
+          })
+        );
     }, 2000);
   }, []);
 

@@ -16,7 +16,7 @@ import { Database, Definition, Field } from "../../statics";
 import { randomUUID } from "expo-crypto";
 import { FieldEdit } from "./components";
 import { Platform } from "react-native";
-import { ConfirmationModal } from "../../components";
+import { ConfirmationModal, Toast } from "../../components";
 
 const EditDefinition = () => {
   const navigation = useNavigation();
@@ -27,6 +27,7 @@ const EditDefinition = () => {
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [definition, setDefinition] = useState<Definition>({
     name: "",
+    titleFields: [],
     id: randomUUID(),
     fields: [],
   });
@@ -54,10 +55,13 @@ const EditDefinition = () => {
         {
           id: randomUUID(),
           defID: prev.id,
-          name: "",
-          type: "",
           defaultValue: "",
-          additionalOptions: "",
+          isRequired: true,
+          isUnique: false,
+          label: "",
+          name: "",
+          sequence: 0,
+          type: "",
         },
       ],
     }));
@@ -93,47 +97,121 @@ const EditDefinition = () => {
 
   const deleteDefinition = () => {
     if (id) {
-      Database.deleteFullDefinition(id).then(() => {
-        navigation.goBack();
-      });
+      setIsDeleteOpen(false);
+      Database.deleteFullDefinition(id)
+        .then(() => {
+          navigation.goBack();
+        })
+        .catch((err) => {
+          toast.show({
+            render: () => (
+              <Toast
+                title='Error'
+                description={err.message}
+                variant='left-accent'
+                status='error'
+              />
+            ),
+          });
+        });
     }
   };
 
   const save = () => {
     if (id) {
-      Database.updateDefinition(definition)
+      console.log(`TITLE FIELDS "${definition.titleFields}"`);
+      Database.updateFullDefinition(definition)
         .then(() => {
-          const proms = definition.fields.map((f) => Database.updateField(f));
-          Promise.all(proms)
-            .then(() => navigation.goBack())
-            .catch(console.log);
+          navigation.goBack();
+          toast.show({ title: "Success", description: "Definition updated." });
         })
-        .catch(console.log);
+        .catch((err) => {
+          toast.show({
+            render: () => (
+              <Toast
+                title='Error'
+                description={err.message}
+                variant='left-accent'
+                status='error'
+              />
+            ),
+          });
+        });
     } else {
-      Database.insertDefinition(definition)
+      Database.insertFullDefinition(definition)
         .then(() => {
-          const proms = definition.fields.map((f) => Database.insertField(f));
-          Promise.all(proms)
-            .then(() => navigation.goBack())
-            .catch(console.log);
+          navigation.goBack();
+          toast.show({
+            render: () => (
+              <Toast
+                title='Success'
+                description='Definition created'
+                variant='left-accent'
+                status='success'
+              />
+            ),
+          });
         })
-        .catch(console.log);
+        .catch((err) => {
+          toast.show({
+            render: () => (
+              <Toast
+                title='Error'
+                description={err.message}
+                variant='left-accent'
+                status='error'
+              />
+            ),
+          });
+        });
     }
   };
 
   const validateDefinition = () => {
     if (!definition.name) {
       toast.show({
-        description: "Name is required",
-        colorScheme: "error",
-        avoidKeyboard: true,
+        render: () => (
+          <Toast
+            title='Error'
+            description='Name is required'
+            variant='left-accent'
+            status='error'
+          />
+        ),
       });
     } else if (!definition.fields.length) {
-      toast.show({ description: "Definitions require fields" });
+      toast.show({
+        render: () => (
+          <Toast
+            title='Error'
+            description='Definitions require fields'
+            variant='left-accent'
+            status='error'
+          />
+        ),
+      });
     } else if (definition.fields.some((f) => !f.name)) {
-      toast.show({ description: "All Fields require a name" });
+      toast.show({
+        render: () => (
+          <Toast
+            title='Error'
+            description='All Fields require a name'
+            variant='left-accent'
+            status='error'
+          />
+        ),
+      });
     } else if (definition.fields.some((f) => !f.type)) {
-      toast.show({ description: "All Fields require a type" });
+      toast.show({
+        render: () => (
+          <Toast
+            title='Error'
+            description='All Fields require a type'
+            variant='left-accent'
+            status='error'
+          />
+        ),
+      });
     } else {
       save();
     }

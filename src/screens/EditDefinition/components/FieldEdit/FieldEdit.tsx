@@ -8,6 +8,10 @@ import {
   IconButton,
   HStack,
   Input,
+  Checkbox,
+  Select,
+  CheckIcon,
+  Center,
 } from "native-base";
 import { ConfirmationModal } from "../../../../components";
 
@@ -62,13 +66,27 @@ const FieldEdit = ({
         placeholder='Name'
         marginBottom={4}
       />
-      <Input
-        value={field.type}
-        onChangeText={(t) => onUpdateField(() => ({ type: t }))}
-        placeholder='Type'
+      <Select
+        placeholder='Field Type'
         marginBottom={4}
-        maxLength={20}
-      />
+        selectedValue={field.type}
+        onValueChange={(s) => onUpdateField(() => ({ type: s }))}
+        _selectedItem={{
+          endIcon: (
+            <Center>
+              <CheckIcon size={4} />
+            </Center>
+          ),
+        }}
+      >
+        <Select.Item label='Text' value='Text' />
+        <Select.Item label='Boolean' value='Boolean' />
+        <Select.Item label='Integer' value='Integer' />
+        <Select.Item label='Real' value='Real' />
+        <Select.Item label='Datetime' value='Datetime' />
+        <Select.Item label='Date' value='Date' />
+        <Select.Item label='Time' value='Time' />
+      </Select>
       <Input
         value={field.defaultValue}
         onChangeText={(t) => onUpdateField(() => ({ defaultValue: t }))}
@@ -76,10 +94,36 @@ const FieldEdit = ({
         marginBottom={4}
       />
       <Input
-        value={field.additionalOptions}
-        onChangeText={(t) => onUpdateField(() => ({ additionalOptions: t }))}
-        placeholder='Additional Options'
+        value={field.label}
+        onChangeText={(t) => onUpdateField(() => ({ label: t }))}
+        placeholder='Label'
+        marginBottom={4}
       />
+      <Input
+        value={`${field.sequence}`}
+        onChangeText={(t) =>
+          onUpdateField(() => ({ sequence: t ? Number.parseInt(t) : 0 }))
+        }
+        keyboardType='number-pad'
+        placeholder='Sequence'
+        marginBottom={4}
+      />
+      <HStack flex={1} justifyContent={"space-evenly"}>
+        <Checkbox
+          value=''
+          isChecked={field.isRequired}
+          onChange={(t) => onUpdateField(() => ({ isRequired: t }))}
+        >
+          Required
+        </Checkbox>
+        <Checkbox
+          value=''
+          isChecked={field.isUnique}
+          onChange={(t) => onUpdateField(() => ({ isUnique: t }))}
+        >
+          Unique
+        </Checkbox>
+      </HStack>
       <ConfirmationModal
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}
